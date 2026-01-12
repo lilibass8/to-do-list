@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusFlow | To‑Do</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="brand">
+        <span class="logo">✓</span>
+        <div>
+          <p class="kicker" data-i18n="kicker">Stay organized</p>
+          <h1 data-i18n="title">FocusFlow To‑Do</h1>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="toggle" id="lang-toggle" role="button" tabindex="0" aria-label="Language toggle">
+          <span>EN</span>/<span>AR</span>
+        </div>
+        <button class="icon-btn" id="theme-toggle" aria-label="Theme toggle">
+          <span class="theme-icon">🌞</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="motivation">
+        <p class="eyebrow" data-i18n="motivationTitle">Daily motivation</p>
+        <p id="motivation-text"></p>
+      </div>
+      <div class="stats">
+        <div>
+          <p class="eyebrow" data-i18n="statsTotal">Total tasks</p>
+          <p id="stat-total">0</p>
+        </div>
+        <div>
+          <p class="eyebrow" data-i18n="statsDone">Completed</p>
+          <p id="stat-done">0</p>
+        </div>
+        <div>
+          <p class="eyebrow" data-i18n="statsProgress">Avg. progress</p>
+          <p id="stat-progress">0%</p>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2 data-i18n="taskForm">Task details</h2>
+          <span class="pill" data-i18n="autoSave">Auto-saved</span>
+        </div>
+        <form id="task-form" class="form">
+          <div class="field">
+            <label for="title" data-i18n="labelTitle">Title</label>
+            <input id="title" name="title" type="text" placeholder="e.g. Read 10 pages" required dir="auto" />
+          </div>
+          <div class="field grid-2">
+            <div>
+              <label for="category" data-i18n="labelCategory">Category</label>
+              <select id="category" name="category">
+                <option value="Study" data-i18n="catStudy">Study</option>
+                <option value="Work" data-i18n="catWork">Work</option>
+                <option value="Personal" data-i18n="catPersonal">Personal</option>
+                <option value="Health" data-i18n="catHealth">Health</option>
+              </select>
+            </div>
+            <div>
+              <label for="priority" data-i18n="labelPriority">Priority</label>
+              <select id="priority" name="priority">
+                <option value="Low" data-i18n="prioLow">Low</option>
+                <option value="Medium" data-i18n="prioMedium">Medium</option>
+                <option value="High" data-i18n="prioHigh">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="field grid-2">
+            <div>
+              <label for="due" data-i18n="labelDue">Due date</label>
+              <input id="due" name="due" type="date" />
+            </div>
+            <div>
+              <label for="progress" data-i18n="labelProgress">Progress</label>
+              <div class="slider-row">
+                <input id="progress" name="progress" type="range" min="0" max="100" value="0" />
+                <span id="progress-value">0%</span>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="notes" data-i18n="labelNotes">Notes</label>
+            <textarea id="notes" name="notes" rows="2" placeholder="Optional" dir="auto"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="save-btn" class="primary" data-i18n="addTask">Add task</button>
+            <button type="button" id="reset-btn" class="ghost" data-i18n="reset">Reset</button>
+          </div>
+        </form>
+
+        <div class="panel-head spaced">
+          <h3 data-i18n="pomodoroTitle">Pomodoro</h3>
+          <div class="pill soft" id="pomodoro-mode">25 : 00</div>
+        </div>
+        <div class="pomodoro">
+          <div class="timer-display">
+            <span id="timer-label" data-i18n="focusLabel">Focus</span>
+            <span id="timer-value">25:00</span>
+          </div>
+          <div class="timer-controls">
+            <button id="start-timer" class="primary" data-i18n="start">Start</button>
+            <button id="pause-timer" class="ghost" data-i18n="pause">Pause</button>
+            <button id="reset-timer" class="ghost" data-i18n="reset">Reset</button>
+          </div>
+          <div class="timer-settings">
+            <label>
+              <span data-i18n="focusMins">Focus (min)</span>
+              <input type="number" id="focus-min" min="5" max="90" value="25" />
+            </label>
+            <label>
+              <span data-i18n="breakMins">Break (min)</span>
+              <input type="number" id="break-min" min="3" max="30" value="5" />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head spaced">
+          <div>
+            <p class="eyebrow" data-i18n="tasksTitle">Tasks</p>
+            <h2 data-i18n="tasksSubtitle">Plan, prioritize, progress</h2>
+          </div>
+          <input type="search" id="search" placeholder="Search tasks…" aria-label="Search tasks" />
+        </div>
+
+        <div class="filters">
+          <select id="filter-category">
+            <option value="" data-i18n="filterAll">All categories</option>
+            <option value="Study" data-i18n="catStudy">Study</option>
+            <option value="Work" data-i18n="catWork">Work</option>
+            <option value="Personal" data-i18n="catPersonal">Personal</option>
+            <option value="Health" data-i18n="catHealth">Health</option>
+          </select>
+          <select id="filter-priority">
+            <option value="" data-i18n="filterPriority">Any priority</option>
+            <option value="Low" data-i18n="prioLow">Low</option>
+            <option value="Medium" data-i18n="prioMedium">Medium</option>
+            <option value="High" data-i18n="prioHigh">High</option>
+          </select>
+          <select id="filter-status">
+            <option value="" data-i18n="filterStatus">All</option>
+            <option value="open" data-i18n="filterOpen">Open</option>
+            <option value="done" data-i18n="filterDone">Completed</option>
+          </select>
+        </div>
+
+        <ul id="task-list" class="task-list"></ul>
+        <p id="empty-state" class="empty" data-i18n="empty">No tasks yet. Add your first one!</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
