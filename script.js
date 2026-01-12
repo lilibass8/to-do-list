@@ -5,6 +5,7 @@
     lang: "ff_lang",
     timer: "ff_timer_state",
     streak: "ff_streak",
+    soundEnabled: "ff_sound_enabled",
   };
 
   const translations = {
@@ -55,6 +56,7 @@
       prizeMessage1: "Great work! You completed a focus session.",
       prizeMessage2: "Amazing! You're building a strong streak!",
       prizeMessage3: "Incredible! You're on fire! 🔥",
+      soundEnabled: "🔔 Sound notifications",
     },
     ar: {
       kicker: "ابق منظماً",
@@ -103,6 +105,7 @@
       prizeMessage1: "عمل رائع! أكملت جلسة تركيز.",
       prizeMessage2: "مذهل! أنت تبني سلسلة قوية!",
       prizeMessage3: "لا يصدق! أنت في قمة الأداء! 🔥",
+      soundEnabled: "🔔 إشعارات صوتية",
     },
   };
 
@@ -137,6 +140,7 @@
     resetTimer: document.getElementById("reset-timer"),
     focusMin: document.getElementById("focus-min"),
     breakMin: document.getElementById("break-min"),
+    soundEnabled: document.getElementById("sound-enabled"),
     statStreak: document.getElementById("stat-streak"),
     prizeModal: document.getElementById("prize-modal"),
     prizeTitle: document.getElementById("prize-title"),
@@ -160,6 +164,7 @@
     theme: localStorage.getItem(storageKeys.theme) || "light",
     streak: 0,
     lastSessionDate: null,
+    soundEnabled: localStorage.getItem(storageKeys.soundEnabled) !== "false", // default true
   };
 
   // Pomodoro state
@@ -531,13 +536,87 @@
     clearInterval(timer.interval);
   }
 
+  // --- Sound functions ---
+  function playSound(type = "complete") {
+    if (!state.soundEnabled) return;
+
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      
+      let frequency, duration;
+      if (type === "complete") {
+        // Success sound - ascending tones
+        frequency = 523.25; // C5
+        duration = 0.3;
+      } else if (type === "break") {
+        // Break sound - gentle chime
+        frequency = 392; // G4
+        duration = 0.4;
+      } else {
+        // Default notification
+        frequency = 440; // A4
+        duration = 0.2;
+      }
+
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = type === "complete" ? "sine" : "sine";
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration);
+
+      // Play multiple tones for completion sound
+      if (type === "complete") {
+        setTimeout(() => {
+          const osc2 = audioContext.createOscillator();
+          const gain2 = audioContext.createGain();
+          osc2.connect(gain2);
+          gain2.connect(audioContext.destination);
+          osc2.frequency.value = 659.25; // E5
+          osc2.type = "sine";
+          gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+          osc2.start(audioContext.currentTime);
+          osc2.stop(audioContext.currentTime + duration);
+        }, 150);
+
+        setTimeout(() => {
+          const osc3 = audioContext.createOscillator();
+          const gain3 = audioContext.createGain();
+          osc3.connect(gain3);
+          gain3.connect(audioContext.destination);
+          osc3.frequency.value = 783.99; // G5
+          osc3.type = "sine";
+          gain3.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gain3.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+          osc3.start(audioContext.currentTime);
+          osc3.stop(audioContext.currentTime + duration);
+        }, 300);
+      }
+    } catch (error) {
+      console.log("Sound playback not available:", error);
+    }
+  }
+
   function switchPhase() {
     const nextIsFocus = !timer.isFocus;
     
-    // If completing a focus session (going from focus to break), show prize
+    // If completing a focus session (going from focus to break), show prize and play sound
     if (timer.isFocus && !nextIsFocus) {
       pauseTimer();
+      playSound("complete");
       showPrize();
+    } else if (!timer.isFocus && nextIsFocus) {
+      // Break ended, starting focus
+      playSound("break");
     }
     
     timer.isFocus = nextIsFocus;
@@ -618,6 +697,17 @@
   elements.prizeModal.addEventListener("click", (e) => {
     if (e.target === elements.prizeModal) {
       hidePrize();
+    }
+  });
+
+  // Sound toggle
+  elements.soundEnabled.checked = state.soundEnabled;
+  elements.soundEnabled.addEventListener("change", (e) => {
+    state.soundEnabled = e.target.checked;
+    localStorage.setItem(storageKeys.soundEnabled, state.soundEnabled);
+    // Play a test sound when enabled
+    if (state.soundEnabled) {
+      playSound("complete");
     }
   });
 
