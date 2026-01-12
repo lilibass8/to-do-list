@@ -137,7 +137,7 @@ h1 {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   text-align: center;
 }
@@ -146,6 +146,16 @@ h1 {
   margin: 0;
   font-weight: 700;
   font-size: 18px;
+}
+
+.streak-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.streak-stat p:last-child {
+  color: var(--accent);
 }
 
 .layout {
@@ -449,13 +459,106 @@ button:hover {
   }
 }
 
+/* Prize Modal */
+.prize-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.prize-content {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+.prize-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounce 0.6s ease;
+}
+
+.prize-content h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+  color: var(--text);
+}
+
+.prize-content p {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.prize-streak {
+  margin: 20px 0;
+  padding: 12px;
+  background: var(--primary-weak);
+  border-radius: 12px;
+  font-size: 18px;
+  color: var(--primary);
+}
+
+.prize-streak strong {
+  font-size: 24px;
+  margin: 0 4px;
+  color: var(--accent);
+}
+
+#prize-close {
+  margin-top: 16px;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
 @media (max-width: 640px) {
   .hero {
     grid-template-columns: 1fr;
   }
 
   .stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .task-item {
@@ -464,5 +567,13 @@ button:hover {
 
   .task-main {
     align-items: center;
+  }
+
+  .prize-content {
+    padding: 24px;
+  }
+
+  .prize-icon {
+    font-size: 48px;
   }
 }

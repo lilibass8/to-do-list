@@ -4,6 +4,7 @@
     theme: "ff_theme",
     lang: "ff_lang",
     timer: "ff_timer_state",
+    streak: "ff_streak",
   };
 
   const translations = {
@@ -46,6 +47,14 @@
       prioLow: "Low",
       prioMedium: "Medium",
       prioHigh: "High",
+      streakTitle: "🔥 Streak",
+      streakDays: "days",
+      prizeTitle: "Session Complete!",
+      prizeClose: "Awesome!",
+      currentStreak: "Current streak:",
+      prizeMessage1: "Great work! You completed a focus session.",
+      prizeMessage2: "Amazing! You're building a strong streak!",
+      prizeMessage3: "Incredible! You're on fire! 🔥",
     },
     ar: {
       kicker: "ابق منظماً",
@@ -86,6 +95,14 @@
       prioLow: "منخفضة",
       prioMedium: "متوسطة",
       prioHigh: "مرتفعة",
+      streakTitle: "🔥 سلسلة",
+      streakDays: "أيام",
+      prizeTitle: "اكتملت الجلسة!",
+      prizeClose: "رائع!",
+      currentStreak: "السلسلة الحالية:",
+      prizeMessage1: "عمل رائع! أكملت جلسة تركيز.",
+      prizeMessage2: "مذهل! أنت تبني سلسلة قوية!",
+      prizeMessage3: "لا يصدق! أنت في قمة الأداء! 🔥",
     },
   };
 
@@ -120,6 +137,12 @@
     resetTimer: document.getElementById("reset-timer"),
     focusMin: document.getElementById("focus-min"),
     breakMin: document.getElementById("break-min"),
+    statStreak: document.getElementById("stat-streak"),
+    prizeModal: document.getElementById("prize-modal"),
+    prizeTitle: document.getElementById("prize-title"),
+    prizeMessage: document.getElementById("prize-message"),
+    prizeStreakCount: document.getElementById("prize-streak-count"),
+    prizeClose: document.getElementById("prize-close"),
   };
 
   const messages = [
@@ -135,6 +158,8 @@
     editingId: null,
     lang: localStorage.getItem(storageKeys.lang) || "en",
     theme: localStorage.getItem(storageKeys.theme) || "light",
+    streak: 0,
+    lastSessionDate: null,
   };
 
   // Pomodoro state
@@ -148,6 +173,18 @@
   const savedTasks = localStorage.getItem(storageKeys.tasks);
   if (savedTasks) {
     state.tasks = JSON.parse(savedTasks);
+  }
+
+  // Load streak data
+  const savedStreak = localStorage.getItem(storageKeys.streak);
+  if (savedStreak) {
+    try {
+      const streakData = JSON.parse(savedStreak);
+      state.streak = streakData.streak || 0;
+      state.lastSessionDate = streakData.lastSessionDate || null;
+    } catch (_) {
+      /* ignore */
+    }
   }
 
   // --- UI helpers ---
@@ -180,6 +217,7 @@
     elements.title.placeholder = state.lang === "ar" ? "مثلاً: قراءة 10 صفحات" : "e.g. Read 10 pages";
     elements.search.placeholder = state.lang === "ar" ? "ابحث عن المهام…" : "Search tasks…";
     elements.saveBtn.textContent = state.editingId ? dict.updateTask : dict.addTask;
+    updateStreakDisplay();
   }
 
   function setMotivation() {
@@ -344,6 +382,73 @@
     elements.statTotal.textContent = total;
     elements.statDone.textContent = done;
     elements.statProgress.textContent = `${avg}%`;
+    updateStreakDisplay();
+  }
+
+  function updateStreakDisplay() {
+    const dict = translations[state.lang];
+    elements.statStreak.innerHTML = `${state.streak} <span data-i18n="streakDays">${dict.streakDays}</span>`;
+  }
+
+  function saveStreak() {
+    localStorage.setItem(
+      storageKeys.streak,
+      JSON.stringify({
+        streak: state.streak,
+        lastSessionDate: state.lastSessionDate,
+      })
+    );
+  }
+
+  function updateStreak() {
+    const today = new Date().toDateString();
+    const lastDate = state.lastSessionDate ? new Date(state.lastSessionDate).toDateString() : null;
+
+    if (lastDate === today) {
+      // Already completed a session today, don't increment
+      return;
+    }
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+
+    if (lastDate === yesterdayStr) {
+      // Consecutive day - increment streak
+      state.streak += 1;
+    } else if (lastDate === null) {
+      // First session ever
+      state.streak = 1;
+    } else {
+      // Streak broken - reset to 1
+      state.streak = 1;
+    }
+
+    state.lastSessionDate = today;
+    saveStreak();
+    updateStreakDisplay();
+  }
+
+  function showPrize() {
+    updateStreak();
+    const dict = translations[state.lang];
+    
+    let message;
+    if (state.streak === 1) {
+      message = dict.prizeMessage1;
+    } else if (state.streak < 7) {
+      message = dict.prizeMessage2;
+    } else {
+      message = dict.prizeMessage3;
+    }
+
+    elements.prizeMessage.textContent = message;
+    elements.prizeStreakCount.textContent = state.streak;
+    elements.prizeModal.style.display = "flex";
+  }
+
+  function hidePrize() {
+    elements.prizeModal.style.display = "none";
   }
 
   // --- Form helpers ---
@@ -428,16 +533,23 @@
 
   function switchPhase() {
     const nextIsFocus = !timer.isFocus;
+    
+    // If completing a focus session (going from focus to break), show prize
+    if (timer.isFocus && !nextIsFocus) {
+      pauseTimer();
+      showPrize();
+    }
+    
     timer.isFocus = nextIsFocus;
     timer.remaining = (nextIsFocus ? Number(elements.focusMin.value) : Number(elements.breakMin.value)) * 60;
-    const message = nextIsFocus
-      ? state.lang === "ar"
-        ? "حان وقت التركيز!"
-        : "Focus time!"
-      : state.lang === "ar"
-      ? "خذ استراحة قصيرة."
-      : "Take a short break.";
-    alert(message);
+    
+    if (nextIsFocus) {
+      const message = state.lang === "ar" ? "حان وقت التركيز!" : "Focus time!";
+      // Only show alert if prize modal is not showing
+      if (elements.prizeModal.style.display === "none") {
+        alert(message);
+      }
+    }
   }
 
   function resetTimer() {
@@ -502,11 +614,19 @@
   elements.pauseTimer.addEventListener("click", pauseTimer);
   elements.resetTimer.addEventListener("click", resetTimer);
 
+  elements.prizeClose.addEventListener("click", hidePrize);
+  elements.prizeModal.addEventListener("click", (e) => {
+    if (e.target === elements.prizeModal) {
+      hidePrize();
+    }
+  });
+
   // --- Init ---
   setTheme(state.theme);
   setLanguage(state.lang);
   setMotivation();
   loadTimerState();
   updateTimerDisplay();
+  updateStreakDisplay();
   renderTasks();
 })();

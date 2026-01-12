@@ -44,6 +44,10 @@
           <p class="eyebrow" data-i18n="statsProgress">Avg. progress</p>
           <p id="stat-progress">0%</p>
         </div>
+        <div class="streak-stat">
+          <p class="eyebrow" data-i18n="streakTitle">🔥 Streak</p>
+          <p id="stat-streak">0 <span data-i18n="streakDays">days</span></p>
+        </div>
       </div>
     </section>
 
@@ -161,6 +165,21 @@
         <p id="empty-state" class="empty" data-i18n="empty">No tasks yet. Add your first one!</p>
       </section>
     </main>
+  </div>
+
+  <!-- Prize Modal -->
+  <div id="prize-modal" class="prize-modal" style="display: none;">
+    <div class="prize-content">
+      <div class="prize-icon">🎉</div>
+      <h2 id="prize-title" data-i18n="prizeTitle">Session Complete!</h2>
+      <p id="prize-message"></p>
+      <div class="prize-streak">
+        <span data-i18n="currentStreak">Current streak:</span>
+        <strong id="prize-streak-count">0</strong>
+        <span data-i18n="streakDays">days</span>
+      </div>
+      <button class="primary" id="prize-close" data-i18n="prizeClose">Awesome!</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
