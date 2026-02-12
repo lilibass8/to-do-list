@@ -248,6 +248,39 @@ textarea:focus {
   gap: 12px;
 }
 
+.date-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.date-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-label {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.date-field input {
+  width: 100%;
+  text-align: center;
+  padding: 8px 6px;
+  font-size: 14px;
+}
+
+.date-separator {
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
 .slider-row {
   display: flex;
   align-items: center;

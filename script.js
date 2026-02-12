@@ -57,6 +57,9 @@
       prizeMessage2: "Amazing! You're building a strong streak!",
       prizeMessage3: "Incredible! You're on fire! 🔥",
       soundEnabled: "🔔 Sound notifications",
+      dayLabel: "Day",
+      monthLabel: "Month",
+      yearLabel: "Year",
     },
     ar: {
       kicker: "ابق منظماً",
@@ -106,6 +109,9 @@
       prizeMessage2: "مذهل! أنت تبني سلسلة قوية!",
       prizeMessage3: "لا يصدق! أنت في قمة الأداء! 🔥",
       soundEnabled: "🔔 إشعارات صوتية",
+      dayLabel: "يوم",
+      monthLabel: "شهر",
+      yearLabel: "سنة",
     },
   };
 
@@ -115,6 +121,9 @@
     category: document.getElementById("category"),
     priority: document.getElementById("priority"),
     due: document.getElementById("due"),
+    dueDay: document.getElementById("due-day"),
+    dueMonth: document.getElementById("due-month"),
+    dueYear: document.getElementById("due-year"),
     progress: document.getElementById("progress"),
     progressValue: document.getElementById("progress-value"),
     notes: document.getElementById("notes"),
@@ -461,8 +470,36 @@
     elements.form.reset();
     elements.progress.value = 0;
     elements.progressValue.textContent = "0%";
+    elements.dueDay.value = "";
+    elements.dueMonth.value = "";
+    elements.dueYear.value = "";
+    elements.due.value = "";
     state.editingId = null;
     elements.saveBtn.textContent = translations[state.lang].addTask;
+  }
+
+  function formatDateString(day, month, year) {
+    if (!day || !month || !year) return "";
+    const d = String(day).padStart(2, "0");
+    const m = String(month).padStart(2, "0");
+    return `${d}/${m}/${year}`;
+  }
+
+  function updateDateField() {
+    const day = elements.dueDay.value;
+    const month = elements.dueMonth.value;
+    const year = elements.dueYear.value;
+    elements.due.value = formatDateString(day, month, year);
+  }
+
+  function parseDateString(dateStr) {
+    if (!dateStr) return { day: "", month: "", year: "" };
+    const parts = dateStr.split("/");
+    return {
+      day: parts[0] || "",
+      month: parts[1] || "",
+      year: parts[2] || "",
+    };
   }
 
   function startEdit(task) {
@@ -470,7 +507,12 @@
     elements.title.value = task.title;
     elements.category.value = task.category;
     elements.priority.value = task.priority;
-    elements.due.value = task.due || "";
+    const dateValue = task.due || "";
+    const parsed = parseDateString(dateValue);
+    elements.dueDay.value = parsed.day;
+    elements.dueMonth.value = parsed.month;
+    elements.dueYear.value = parsed.year;
+    elements.due.value = dateValue;
     elements.progress.value = task.progress;
     elements.progressValue.textContent = `${task.progress}%`;
     elements.notes.value = task.notes || "";
@@ -643,6 +685,10 @@
   elements.progress.addEventListener("input", () => {
     elements.progressValue.textContent = `${elements.progress.value}%`;
   });
+
+  elements.dueDay.addEventListener("input", updateDateField);
+  elements.dueMonth.addEventListener("input", updateDateField);
+  elements.dueYear.addEventListener("input", updateDateField);
 
   elements.form.addEventListener("submit", (e) => {
     e.preventDefault();

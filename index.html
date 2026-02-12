@@ -83,8 +83,24 @@
           </div>
           <div class="field grid-2">
             <div>
-              <label for="due" data-i18n="labelDue">Due date</label>
-              <input id="due" name="due" type="date" />
+              <label data-i18n="labelDue">Due date</label>
+              <div class="date-inputs">
+                <div class="date-field">
+                  <label for="due-day" class="date-label" data-i18n="dayLabel">Day</label>
+                  <input id="due-day" name="due-day" type="number" min="1" max="31" placeholder="01" />
+                </div>
+                <span class="date-separator">/</span>
+                <div class="date-field">
+                  <label for="due-month" class="date-label" data-i18n="monthLabel">Month</label>
+                  <input id="due-month" name="due-month" type="number" min="1" max="12" placeholder="01" />
+                </div>
+                <span class="date-separator">/</span>
+                <div class="date-field">
+                  <label for="due-year" class="date-label" data-i18n="yearLabel">Year</label>
+                  <input id="due-year" name="due-year" type="number" min="2000" max="2099" placeholder="2026" />
+                </div>
+                <input id="due" name="due" type="hidden" />
+              </div>
             </div>
             <div>
               <label for="progress" data-i18n="labelProgress">Progress</label>
